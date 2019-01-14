@@ -1,0 +1,64 @@
+#include <stdio.h>
+/*
+KMP算法需要两个函数
+1.GetNext()函数用来返回next数组
+2.KMP()用来查找
+*/
+
+int* GetNext(char k[],int n)
+{
+	int next[n];
+	next[0] = 0;
+	next[1] = 0;
+	int j=0,i=1;
+	while(i<n)
+	{
+		if(j==0&&k[j]==k[i]){
+				j++;
+				i++;
+				next[i]=j;
+		}
+		else{
+			//回溯
+			j=next[j];
+		}
+	}
+	return next;
+}
+
+int KMP(char K[],int n1,char sub[],int n2)
+{
+	int next[n1]=GetNext(k,n1);
+	//求next数组
+	
+}
+
+/*
+BF算法
+*/
+int BFIndex(SuperString&fatherString,SuperString&sonString)
+{
+	int fatherLength = StrLength(fatherString);
+	int sonLength = StrLength(sonString); 
+	int i = 0;
+	int j = 0;
+
+	while (j < sonLength&&i<fatherLength) {
+		if (j == sonLength - 1)
+		{
+			return i - sonLength + 1;
+		}
+		if (fatherString.ch[i] == sonString.ch[j])
+		{
+			i++;
+			j++;
+		}
+		else
+		{
+			i = i - j + 1;
+			j = 0;
+		}
+	}
+
+	return -1;
+}

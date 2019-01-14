@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct BITree{
+	int data;
+	BITree* lchild;
+	BITree* rchild;
+}BITree,*BITreePtr;
+
+int InsertNode(BITreePtr&T,int key)
+{
+	if(!T)
+	{
+		//如果结点不存在，那么创建
+		T=(BITreePtr)malloc(sizeof(BITree));
+		T->data=key;
+		T->lchild=NULL;
+		T->rchild=NULL;
+	}
+	else 
+	{
+		if(T->data==key){
+			//如果节点存在，但是元素值等于key
+			//那么就不用插入了 退出
+			return false;
+		}
+		if(T->data<key)
+		{
+			//递归左子树
+			InsertNode(T->lchild,key);
+		}
+		else if(T->data<key)
+		{
+			//递归右子树
+			InsertNode(T->rchild.key);
+		}	
+	}
+	return true;
+}
+
+//查找
+BITreePtr SearchNode(BITreePtr&T,int key)
+{
+	if(key==T->data)
+	{
+		return T; //如果找到了，返回T
+	}
+	else if(T->lchild=NULL&&T->rchild=NULL)
+	{
+		return NULL; //没有找到
+	}
+	else if(T->data<key)
+	{
+		//递归查找右子树
+		SearchNode(T->rchild,key);
+	}
+	else if(T->data<key)
+	{
+		//递归查找左子树
+		SearchNode(T->lchild,key);
+	}
+	return NULL;
+}
+
+
+/*
+删除的几种情况
+1.删除叶子节点，这样删除堆树不会有任何的影响
+2.删除的结点有一个左子树/右子树 那么子承父业 直接接过去
+3.删除的结点有两个子树：
+		通过中序遍历，发现待删除结点左子树中最右的结点是其前驱
+		通过中序遍历，发现待删除结点右子树种最左的结点是其后继
+		也就是说，其前驱大于左子树种除了前驱之外所有的结点
+		同理，其后继小于右子树除了后继所有的结点。
+		所以可以直接将前驱后继换上去，前驱的左子树直接练到前驱之前的位置、
+		后继的右子树直接链到后继之前的位置上去。
+（前驱不可能有右子树 后继不可能有左子树 否则为什么不用其右子树（左子树）换上去？）
+*/
+BITreePtr nodeCache; //待删除结点上一个结点
+int NodeDelete(BITreePtr&T,int key)
+{
+	if(key==T->data){//找到的情况下
+		if(T->lchild==NULL&&T->rchild=NULL)
+		{
+			//删除叶子节点的情况
+			free(T);
+		}
+		else if(T->lchild!=NULL&&T->rchild=NULL)
+		{
+			//删除节点有一个左子树的情况
+			BITreePtr cache = T->lchild;
+			free(T);
+			if(nodeCache->data>cache->data)
+				nodeCache->lchild=cache;
+			else
+				nodeCache->rchild=cache;
+		}
+		else if(T->lchild==NULL&&T->rchild!=NULL)
+		{
+			//删除结点有一个右子树的情况
+			BITreePtr cache = T->rchild;
+			free(T);
+			if(nodeCache->data>cache->data)
+				nodeCache->lchild=cache;
+			else
+				nodeCache->rchild=cache;
+		}
+		else if(T->lchild!=NULL&&T->rchild!=NULL)
+		{
+			//左右节点都存在的情况下
+			/*
+			这里我们要找到bst的左子树里面最右的那一个结点
+			或者右子树里面最左的哪一个结点
+			这里我们使用找到左子树最右结点的情况，右子树最左节点雷同
+			我们要先找到bst的lchild并且将其记为L
+			并且在设置一个指针，循环的指向L的rchild，直到这个指针为NULL为止
+			这时候我们就找到 左子树最右节点了 同时设置一个LRC记录这个指针的上一个结点（用来连接该节点的左结点）
+			找到之后，先用LRC连接上其左节点 再将该指针的左右指针指向待删除结点的左右指针，并且用bstCache的指针指向LR（本来指向bst）
+			如果是根节点，那么需要将bstCache的值再覆盖给bst（因为根节点没有头节点）
+			*/
+			BITreePtr L= T->lchild;
+			if(L->rchild!=NULL)
+			{
+				BITreePtr LR,LRC;
+				LRC=L;
+				LR=L->rchild;
+				while(LR->rchild!=NULL)
+				{
+					LRC=LR;
+					LR=LR->rchild;
+				}
+				LRC=LR->lchild;
+				LR->lchild=T->lchild;
+				LR->rchild=T->rchild;
+				if(nodeCache->data>LR->data)
+					nodeCache->lchild=LR;
+				else
+					nodeCache->rchild=LR;
+				free(T);
+				
+			}
+			else if(L->rchild==NULL)
+			{
+				L->rchild=T->rchild;
+				if(nodeCache->data<L->data)
+					nodeCache->rchild=L;
+				else
+					nodeCache->lchild=L;
+			}
+		}
+	}
+}
